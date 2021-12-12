@@ -44,10 +44,10 @@ class NeuronLayer:
         self.neurons: List[Neuron] = []
 
         for i in range(number_of_neurons):
-            start_bias = random()
+            start_bias = (random() - 0.5 ) * 2
             weights = []
             for j in range(previous_layer_length):
-                weights.append(random() / 784)
+                weights.append((random() - 0.5 ) * 2)
             self.neurons.append(Neuron(start_bias, weights))
 
     def __repr__(self):
@@ -215,10 +215,11 @@ def gen_image(arr):
     plt.imshow(two_d, interpolation='nearest', cmap='Greys_r')
     return plt
 
-gen_image(new_images[25]).show()
-print(all_labels[25])
-gen_image(new_images[222]).show()
-print(all_labels[222])
+# for i, img in enumerate(new_images[120:130]):
+#     gen_image(img).show()
+#     print(all_labels[120 + i])
+gen_image(new_images[126]).show()
+print(all_labels[126])
 gen_image(new_images[4098]).show()
 print(all_labels[4098])
 
@@ -230,7 +231,7 @@ for i, image in enumerate(images):
 
 seed(datetime.datetime.now())
 
-dataset = images_dataset[:25]
+dataset = images_dataset[:200]
 
 print('AAAAA')
 print(dataset[0])
@@ -240,10 +241,10 @@ outputs = 10
 network = NeuronNetwork(3, [784, 15, outputs])  # including input layer which is not exactly a layer
 print(network)
 
-network.train(dataset, 1.1, 2000, outputs)
+network.train(dataset, 0.8, 200, outputs)
 print(network)
 
-dataset_to_predict = images_dataset[10:15]
+dataset_to_predict = images_dataset[220:230]
 
 for row in dataset_to_predict:
     prediction = network.predict(row)
