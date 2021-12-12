@@ -47,7 +47,7 @@ class NeuronLayer:
             start_bias = random()
             weights = []
             for j in range(previous_layer_length):
-                weights.append(random() / 10)
+                weights.append(random() / 784)
             self.neurons.append(Neuron(start_bias, weights))
 
     def __repr__(self):
@@ -124,6 +124,7 @@ class NeuronNetwork:
             for neuron in layer.neurons:
                 for input_index in range(len(inputs)):
                     neuron.weights[input_index] -= learning_rate * neuron.delta * inputs[input_index]
+                    # neuron.bias -= learning_rate * 1 * neuron.delta
                 neuron.weights[-1] -= learning_rate * neuron.delta
 
     def train(self, dataset: List[List[Union[float, int]]], learning_rate: float, repeats: int, number_of_outputs: int):
@@ -239,7 +240,7 @@ outputs = 10
 network = NeuronNetwork(3, [784, 15, outputs])  # including input layer which is not exactly a layer
 print(network)
 
-network.train(dataset, 0.1, 2000, outputs)
+network.train(dataset, 1.1, 2000, outputs)
 print(network)
 
 dataset_to_predict = images_dataset[10:15]
