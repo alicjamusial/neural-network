@@ -3,6 +3,8 @@ from random import random, seed
 from typing import List, Union
 
 from numpy.ma import exp
+from matplotlib import pyplot as plt
+import numpy as np
 
 
 def sigmoid(value: float) -> float:
@@ -166,4 +168,39 @@ def main():
         prediction = network.predict(row)
         print(f'Expected={row[-1]}, Got={prediction}')
 
-main()
+# main()
+
+
+with open('mnist/train-images.idx3-ubyte', 'rb') as f:
+    data = f.read()
+
+magic_number = int.from_bytes(data[0:4], 'big')
+number_of_images = int.from_bytes(data[4:8], 'big')
+number_of_rows = int.from_bytes(data[8:12], 'big')
+number_of_cols = int.from_bytes(data[12:16], 'big')
+
+images_raw = data[16:]
+images = []
+
+size = number_of_cols * number_of_rows  # 784
+
+for i in range(number_of_images):
+    images.append(images_raw[(i*size):(i*size + size)])
+
+
+new_images = []
+
+for image in images:
+    image = [x for x in image]
+    a = np.array(image)
+    nslices = number_of_rows
+    a.reshape((nslices, -1))
+    new_images.append(a)
+
+
+def gen_image(arr):
+    two_d = (np.reshape(arr, (28, 28))).astype(np.uint8)
+    plt.imshow(two_d, interpolation='nearest', cmap='Greys_r')
+    return plt
+
+gen_image(new_images[25]).show()
