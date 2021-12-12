@@ -24,8 +24,6 @@ class Neuron:
         return f'Neuron, activation: {self.activation}, error delta: {self.delta}, bias: {self.bias}, weights: {self.weights}'
 
     def compute_and_set_activation(self, inputs: List[float]) -> None:
-        # activation = SUM(weight i-1 * input i-1) + bias
-
         activation = self.bias
         for i in range(len(self.weights)):
             activation += self.weights[i] * inputs[i]
@@ -39,19 +37,6 @@ class Neuron:
 class NeuronLayer:
     def __init__(self, number_of_neurons: int, previous_layer_length: int) -> None:
         self.neurons: List[Neuron] = []
-        # if number_of_neurons == 1:
-        #     start_bias = 0.763774618976614
-        #     weights = [0.13436424411240122, 0.8474337369372327]
-        #     self.neurons.append(Neuron(start_bias, weights))
-        #
-        # if number_of_neurons == 2:
-        #     start_bias = 0.49543508709194095
-        #     weights = [0.2550690257394217]
-        #     self.neurons.append(Neuron(start_bias, weights))
-        #
-        #     start_bias = 0.651592972722763
-        #     weights = [0.4494910647887381]
-        #     self.neurons.append(Neuron(start_bias, weights))
 
         for i in range(number_of_neurons):
             start_bias = random()
@@ -89,8 +74,6 @@ class NeuronNetwork:
         return text
 
     def forward_propagate(self, data_input: List[float]) -> List[float]:
-        # print('Forward propagation...')
-
         for layer in self.layers:
             new_input = []
             for neuron in layer.neurons:
@@ -104,7 +87,6 @@ class NeuronNetwork:
     def back_propagate(self, expected_output: List[float]):
         # Calculate an error for each output neuron (last layer)
         # which will give us input to propagate backwards to previous layers
-        # print('Backpropagation...')
 
         number_of_layers = len(self.layers)
 
@@ -146,10 +128,8 @@ class NeuronNetwork:
                 output = self.forward_propagate(row)
                 expected = [0 for _ in range(number_of_outputs)]
                 expected[row[-1]] = 1
-                # print(f'Expected: {expected}')
 
                 sum_error += sum([(expected[i] - output[i]) ** 2 for i in range(len(expected))])
-                # print(f'Sum error: {sum_error}')
                 self.back_propagate(expected)
                 self._update_weights(row, learning_rate)
 
@@ -157,25 +137,13 @@ class NeuronNetwork:
 
     def predict(self, row: List[float]):
         output = self.forward_propagate(row)
-        print(output)
+        print(f'Probabilities: {output}')
         max_probability = max(output)
         return output.index(max_probability)
 
 
 def main():
     seed(datetime.datetime.now())
-    # network = NeuronNetwork(3, [2, 1, 2])  # including input layer which is not exactly a layer
-    # print(network)
-    # dataset = [[2.7810836, 2.550537003, 0],
-    #            [1.465489372, 2.362125076, 0],
-    #            [3.396561688, 4.400293529, 0],
-    #            [1.38807019, 1.850220317, 0],
-    #            [3.06407232, 3.005305973, 0],
-    #            [7.627531214, 2.759262235, 1],
-    #            [5.332441248, 2.088626775, 1],
-    #            [6.922596716, 1.77106367, 1],
-    #            [8.675418651, -0.242068655, 1],
-    #            [7.673756466, 3.508563011, 1]]
 
     xor = [[0, 0, 0],
            [0, 1, 1],
@@ -189,17 +157,6 @@ def main():
     network.train(xor, 0.1, 8000, outputs)
     print(network)
 
-    # dataset_to_predict = [[2.7810836, 2.550537003, 0],
-    #                       [1.465489372, 2.362125076, 0],
-    #                       [3.396561688, 4.400293529, 0],
-    #                       [1.38807019, 1.850220317, 0],
-    #                       [3.06407232, 3.005305973, 0],
-    #                       [7.627531214, 2.759262235, 1],
-    #                       [5.332441248, 2.088626775, 1],
-    #                       [6.922596716, 1.77106367, 1],
-    #                       [8.675418651, -0.242068655, 1],
-    #                       [7.673756466, 3.508563011, 1]]
-
     dataset_to_predict = [[0, 0, 0],
            [0, 1, 1],
            [1, 0, 1],
@@ -208,18 +165,5 @@ def main():
     for row in dataset_to_predict:
         prediction = network.predict(row)
         print('Expected=%d, Got=%d' % (row[-1], prediction))
-
-    # network.train()
-
-    # output = network.forward_propagate([1, 0])
-    # print(output)
-    # print('\n')
-    # print(network)
-    #
-    # expected = [0, 1]
-    # network.back_propagate(expected)
-    # print('\n')
-    # print(network)
-
 
 main()
