@@ -31,6 +31,20 @@ class Neuron:
 class NeuronLayer:
     def __init__(self, number_of_neurons: int, previous_layer_length: int) -> None:
         self.neurons: List[Neuron] = []
+        # if number_of_neurons == 1:
+        #     start_bias = 0.763774618976614
+        #     weights = [0.13436424411240122, 0.8474337369372327]
+        #     self.neurons.append(Neuron(start_bias, weights))
+        #
+        # if number_of_neurons == 2:
+        #     start_bias = 0.49543508709194095
+        #     weights = [0.2550690257394217]
+        #     self.neurons.append(Neuron(start_bias, weights))
+        #
+        #     start_bias = 0.651592972722763
+        #     weights = [0.4494910647887381]
+        #     self.neurons.append(Neuron(start_bias, weights))
+
         for i in range(number_of_neurons):
             start_bias = random()
             weights = []
