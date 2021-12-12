@@ -25,7 +25,7 @@ class Neuron:
         for i in range(len(self.weights)):
             activation += self.weights[i] * inputs[i]
 
-        self.activation = activation
+        self.activation = sigmoid(activation)
 
 
 class NeuronLayer:
@@ -47,8 +47,12 @@ class NeuronLayer:
 
 class NeuronNetwork:
     def __init__(self, number_of_layers: int, neurons_in_layers: List[int]) -> None:
+        # Number of layers include input layer
         assert len(neurons_in_layers) == number_of_layers
+        self.input: List[float] = []
+        self.input_len = neurons_in_layers[0]
         self.layers: List[NeuronLayer] = []
+
         for i in range(number_of_layers):
             if i == 0:
                 continue
@@ -57,15 +61,36 @@ class NeuronNetwork:
 
     def __repr__(self):
         text = 'Network:\n'
+        text += f'Input layer: {self.input_len} values\n'
         for layer in self.layers:
             text += repr(layer) + '\n'
 
         return text
 
+    def forward_propagate(self, data_input: List[float]):
+        print('Forward propagation...')
+        assert len(data_input) == self.input_len
+        self.input = data_input.copy()
+
+        for layer in self.layers:
+            new_input = []
+            for neuron in layer.neurons:
+                neuron.set_activation(data_input)
+                new_input.append(neuron.activation)
+            data_input = new_input
+
+        output = data_input  # output is last input, magic
+        return output
+
 
 def main():
     seed(datetime.datetime.now())
     network = NeuronNetwork(3, [2, 1, 2])
+    print(network)
+
+    output = network.forward_propagate([1, 0])
+    print(output)
+    print('\n')
     print(network)
 
 
