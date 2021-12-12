@@ -164,6 +164,6 @@ def main():
 
     for row in dataset_to_predict:
         prediction = network.predict(row)
-        print('Expected=%d, Got=%d' % (row[-1], prediction))
+        print(f'Expected={row[-1]}, Got={prediction}')
 
 main()
