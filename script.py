@@ -29,7 +29,10 @@ class Neuron:
         activation = self.bias
         for i in range(len(self.weights)):
             activation += self.weights[i] * inputs[i]
+            # print(f'Weight: {self.weights[i]}, {inputs[i]}')
 
+        # print(f'Before sigmoid: {activation}, {activation / 784}')
+        activation = activation
         self.activation = sigmoid(activation)
 
     def set_error_delta(self, error_delta: float) -> None:
@@ -44,7 +47,7 @@ class NeuronLayer:
             start_bias = random()
             weights = []
             for j in range(previous_layer_length):
-                weights.append(random())
+                weights.append(random() / 10)
             self.neurons.append(Neuron(start_bias, weights))
 
     def __repr__(self):
@@ -135,7 +138,7 @@ class NeuronNetwork:
                 self.back_propagate(expected)
                 self._update_weights(row, learning_rate)
 
-            print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}')
+            print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
 
     def predict(self, row: List[float]):
         output = self.forward_propagate(row)
@@ -171,6 +174,14 @@ def main():
 # main()
 
 
+with open('mnist/train-labels.idx1-ubyte', 'rb') as f:
+    labels_data = f.read()
+
+magic_number_labels = int.from_bytes(labels_data[0:4], 'big')
+number_of_labels = int.from_bytes(labels_data[4:8], 'big')
+
+all_labels = labels_data[8:]
+
 with open('mnist/train-images.idx3-ubyte', 'rb') as f:
     data = f.read()
 
@@ -204,3 +215,35 @@ def gen_image(arr):
     return plt
 
 gen_image(new_images[25]).show()
+print(all_labels[25])
+gen_image(new_images[222]).show()
+print(all_labels[222])
+gen_image(new_images[4098]).show()
+print(all_labels[4098])
+
+images_dataset = []
+for i, image in enumerate(images):
+    image = [x/255 for x in image]
+    image.append(all_labels[i])
+    images_dataset.append(image)
+
+seed(datetime.datetime.now())
+
+dataset = images_dataset[:25]
+
+print('AAAAA')
+print(dataset[0])
+print(sum(dataset[0]))
+
+outputs = 10
+network = NeuronNetwork(3, [784, 15, outputs])  # including input layer which is not exactly a layer
+print(network)
+
+network.train(dataset, 0.1, 2000, outputs)
+print(network)
+
+dataset_to_predict = images_dataset[10:15]
+
+for row in dataset_to_predict:
+    prediction = network.predict(row)
+    print(f'Expected={row[-1]}, Got={prediction}')
