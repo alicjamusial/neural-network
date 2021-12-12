@@ -2,23 +2,30 @@ import datetime
 from random import random, seed
 from typing import List
 
+from numpy.ma import exp
+
+
+def sigmoid(value: float) -> float:
+    return 1.0 / (1.0 + exp(-value))
+
 
 class Neuron:
-    def __init__(self, bias: int, weights: List[int]) -> None:
+    def __init__(self, bias: float, weights: List[float]) -> None:
         self.bias = bias
         self.weights = weights
+        self.activation = 0
 
     def __repr__(self):
-        return f'Neuron, bias: {self.bias}, weights: {self.weights}'
+        return f'Neuron, activation: {self.activation}, bias: {self.bias}, weights: {self.weights}'
 
-    def activation(self, inputs: List[int]) -> int:
+    def set_activation(self, inputs: List[float]) -> None:
         # activation = SUM(weight i-1 * input i-1) + bias
 
         activation = self.bias
         for i in range(len(self.weights)):
             activation += self.weights[i] * inputs[i]
 
-        return activation
+        self.activation = activation
 
 
 class NeuronLayer:
@@ -48,11 +55,18 @@ class NeuronNetwork:
             previous_layer_length = neurons_in_layers[i - 1]
             self.layers.append(NeuronLayer(neurons_in_layers[i], previous_layer_length))
 
+    def __repr__(self):
+        text = 'Network:\n'
+        for layer in self.layers:
+            text += repr(layer) + '\n'
+
+        return text
+
 
 def main():
     seed(datetime.datetime.now())
     network = NeuronNetwork(3, [2, 1, 2])
-    for layer in network.layers:
-        print(layer)
+    print(network)
+
 
 main()
