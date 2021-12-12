@@ -1,3 +1,4 @@
+import datetime
 from random import random, seed
 from typing import List
 
@@ -9,6 +10,15 @@ class Neuron:
 
     def __repr__(self):
         return f'Neuron, bias: {self.bias}, weights: {self.weights}'
+
+    def activation(self, inputs: List[int]) -> int:
+        # activation = SUM(weight i-1 * input i-1) + bias
+
+        activation = self.bias
+        for i in range(len(self.weights)):
+            activation += self.weights[i] * inputs[i]
+
+        return activation
 
 
 class NeuronLayer:
@@ -40,7 +50,7 @@ class NeuronNetwork:
 
 
 def main():
-    seed(1)
+    seed(datetime.datetime.now())
     network = NeuronNetwork(3, [2, 1, 2])
     for layer in network.layers:
         print(layer)
