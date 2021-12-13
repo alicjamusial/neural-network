@@ -139,11 +139,14 @@ class NeuronNetwork:
                 self.back_propagate(expected)
                 self._update_weights(row, learning_rate)
 
+            # if iteration == 148:
             print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
+            # if iteration == 149:
+            #     print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
 
     def predict(self, row: List[float]):
         output = self.forward_propagate(row)
-        print(f'Probabilities: {output}')
+        # print(f'Probabilities: {output}')
         max_probability = max(output)
         return output.index(max_probability)
 
@@ -218,10 +221,10 @@ def gen_image(arr):
 # for i, img in enumerate(new_images[120:130]):
 #     gen_image(img).show()
 #     print(all_labels[120 + i])
-gen_image(new_images[126]).show()
-print(all_labels[126])
-gen_image(new_images[4098]).show()
-print(all_labels[4098])
+# gen_image(new_images[126]).show()
+# print(all_labels[126])
+# gen_image(new_images[4098]).show()
+# print(all_labels[4098])
 
 images_dataset = []
 for i, image in enumerate(images):
@@ -231,21 +234,27 @@ for i, image in enumerate(images):
 
 seed(datetime.datetime.now())
 
-dataset = images_dataset[:200]
+dataset = images_dataset[:500]
 
-print('AAAAA')
-print(dataset[0])
-print(sum(dataset[0]))
+# for i in range(1, 7):
+print(f'Neurons in hidden: {18}')
+# print(f'Learning curve: {0.1 * i}')
 
 outputs = 10
-network = NeuronNetwork(3, [784, 15, outputs])  # including input layer which is not exactly a layer
-print(network)
+network = NeuronNetwork(3, [784, 18, outputs])  # including input layer which is not exactly a layer
+# print(network)
 
-network.train(dataset, 0.8, 200, outputs)
-print(network)
+network.train(dataset, 0.5, 150, outputs)
+# print(network)
 
-dataset_to_predict = images_dataset[220:230]
+dataset_to_predict = images_dataset[100:120]
+
+errors = 0
 
 for row in dataset_to_predict:
     prediction = network.predict(row)
-    print(f'Expected={row[-1]}, Got={prediction}')
+    # print(f'Expected={row[-1]}, Got={prediction}')
+    if row[-1] != prediction:
+        errors += 1
+
+print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
