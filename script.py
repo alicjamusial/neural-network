@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime
+import pickle
 from random import random, seed
 from typing import List, Union
 
@@ -29,9 +30,7 @@ class Neuron:
         activation = self.bias
         for i in range(len(self.weights)):
             activation += self.weights[i] * inputs[i]
-            # print(f'Weight: {self.weights[i]}, {inputs[i]}')
 
-        # print(f'Before sigmoid: {activation}, {activation / 784}')
         activation = activation
         self.activation = sigmoid(activation)
 
@@ -44,10 +43,10 @@ class NeuronLayer:
         self.neurons: List[Neuron] = []
 
         for i in range(number_of_neurons):
-            start_bias = (random() - 0.5 ) * 2
+            start_bias = (random() - 0.5) * 2
             weights = []
             for j in range(previous_layer_length):
-                weights.append((random() - 0.5 ) * 2)
+                weights.append((random() - 0.5) * 2)
             self.neurons.append(Neuron(start_bias, weights))
 
     def __repr__(self):
@@ -167,94 +166,64 @@ def main():
     print(network)
 
     dataset_to_predict = [[0, 0, 0],
-           [0, 1, 1],
-           [1, 0, 1],
-           [1, 1, 0]]
+                          [0, 1, 1],
+                          [1, 0, 1],
+                          [1, 1, 0]]
 
     for row in dataset_to_predict:
         prediction = network.predict(row)
         print(f'Expected={row[-1]}, Got={prediction}')
 
+
 # main()
 
 
-with open('mnist/train-labels.idx1-ubyte', 'rb') as f:
-    labels_data = f.read()
-
-magic_number_labels = int.from_bytes(labels_data[0:4], 'big')
-number_of_labels = int.from_bytes(labels_data[4:8], 'big')
-
-all_labels = labels_data[8:]
-
-with open('mnist/train-images.idx3-ubyte', 'rb') as f:
-    data = f.read()
-
-magic_number = int.from_bytes(data[0:4], 'big')
-number_of_images = int.from_bytes(data[4:8], 'big')
-number_of_rows = int.from_bytes(data[8:12], 'big')
-number_of_cols = int.from_bytes(data[12:16], 'big')
-
-images_raw = data[16:]
-images = []
-
-size = number_of_cols * number_of_rows  # 784
-
-for i in range(number_of_images):
-    images.append(images_raw[(i*size):(i*size + size)])
-
-
-new_images = []
-
-for image in images:
-    image = [x for x in image]
-    a = np.array(image)
-    nslices = number_of_rows
-    a.reshape((nslices, -1))
-    new_images.append(a)
-
-
-def gen_image(arr):
+def plot_image(arr):
     two_d = (np.reshape(arr, (28, 28))).astype(np.uint8)
     plt.imshow(two_d, interpolation='nearest', cmap='Greys_r')
     return plt
 
-# for i, img in enumerate(new_images[120:130]):
+
+def read_mnist_ready():
+    with open('mnist_results/mnist_ready', 'rb') as fp:
+        return pickle.load(fp)
+
+
+def read_mnist_raw():
+    with open('mnist_results/mnist_raw', 'rb') as fp:
+        return pickle.load(fp)
+
+
+# for i, img in enumaerate(new_images[120:130]):
 #     gen_image(img).show()
 #     print(all_labels[120 + i])
+# new_images = read_mnist_raw()
 # gen_image(new_images[126]).show()
 # print(all_labels[126])
 # gen_image(new_images[4098]).show()
 # print(all_labels[4098])
 
-images_dataset = []
-for i, image in enumerate(images):
-    image = [x/255 for x in image]
-    image.append(all_labels[i])
-    images_dataset.append(image)
 
-seed(datetime.datetime.now())
+seed(datetime.now())
+images_dataset = read_mnist_ready()
 
 dataset = images_dataset[:500]
 
-# for i in range(1, 7):
-print(f'Neurons in hidden: {18}')
-# print(f'Learning curve: {0.1 * i}')
-
 outputs = 10
-network = NeuronNetwork(3, [784, 18, outputs])  # including input layer which is not exactly a layer
-# print(network)
+network = NeuronNetwork(3, [784, 18, outputs])
 
-network.train(dataset, 0.5, 150, outputs)
-# print(network)
+network.train(dataset, 0.5, 5, outputs)
 
-dataset_to_predict = images_dataset[100:120]
-
+dataset_to_predict = images_dataset[500:550]
 errors = 0
-
 for row in dataset_to_predict:
     prediction = network.predict(row)
-    # print(f'Expected={row[-1]}, Got={prediction}')
     if row[-1] != prediction:
         errors += 1
 
 print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
+
+should = input('Should save network?')
+if should == 'y':
+    with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
+        pickle.dump(network, fp)
