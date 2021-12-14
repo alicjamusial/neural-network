@@ -227,9 +227,9 @@ dataset = images_dataset[:500]
 
 outputs = 10
 
-for i in range(3):
-    network = NeuronNetwork(3, [784, 15 + i, outputs])
-    all_errors_sums = network.train(dataset, 0.5, 100, outputs)
+for i in range(6):
+    network = NeuronNetwork(3, [784, 18, outputs])
+    all_errors_sums = network.train(dataset, 0.1 + (0.1 * i), 80, outputs)
 
     plot_errors(all_errors_sums)
 
