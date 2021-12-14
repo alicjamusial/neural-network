@@ -1,5 +1,6 @@
 from datetime import datetime
 import pickle
+import time
 from random import random, seed
 from typing import List, Union
 
@@ -126,7 +127,8 @@ class NeuronNetwork:
                     # neuron.bias -= learning_rate * 1 * neuron.delta
                 neuron.weights[-1] -= learning_rate * neuron.delta
 
-    def train(self, dataset: List[List[Union[float, int]]], learning_rate: float, repeats: int, number_of_outputs: int):
+    def train(self, dataset: List[List[Union[float, int]]], learning_rate: float, repeats: int, number_of_outputs: int) -> List[int]:
+        all_errors = []
         for iteration in range(repeats):
             sum_error = 0
             for row in dataset:
@@ -138,10 +140,12 @@ class NeuronNetwork:
                 self.back_propagate(expected)
                 self._update_weights(row, learning_rate)
 
+            all_errors.append(sum_error)
             # if iteration == 148:
             print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
             # if iteration == 149:
             #     print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
+        return all_errors
 
     def predict(self, row: List[float]):
         output = self.forward_propagate(row)
@@ -149,31 +153,31 @@ class NeuronNetwork:
         max_probability = max(output)
         return output.index(max_probability)
 
-
-def main():
-    seed(datetime.datetime.now())
-
-    xor = [[0, 0, 0],
-           [0, 1, 1],
-           [1, 0, 1],
-           [1, 1, 0]]
-
-    outputs = 2
-    network = NeuronNetwork(3, [2, 4, outputs])  # including input layer which is not exactly a layer
-    print(network)
-
-    network.train(xor, 0.1, 8000, outputs)
-    print(network)
-
-    dataset_to_predict = [[0, 0, 0],
-                          [0, 1, 1],
-                          [1, 0, 1],
-                          [1, 1, 0]]
-
-    for row in dataset_to_predict:
-        prediction = network.predict(row)
-        print(f'Expected={row[-1]}, Got={prediction}')
-
+#
+# def main():
+#     seed(datetime.now())
+#
+#     xor = [[0, 0, 0],
+#            [0, 1, 1],
+#            [1, 0, 1],
+#            [1, 1, 0]]
+#
+#     outputs = 2
+#     network = NeuronNetwork(3, [2, 4, outputs])  # including input layer which is not exactly a layer
+#     print(network)
+#
+#     errors = network.train(xor, 0.1, 8000, outputs)
+#     print(network)
+#
+#     dataset_to_predict = [[0, 0, 0],
+#                           [0, 1, 1],
+#                           [1, 0, 1],
+#                           [1, 1, 0]]
+#
+#     for row in dataset_to_predict:
+#         prediction = network.predict(row)
+#         print(f'Expected={row[-1]}, Got={prediction}')
+#
 
 # main()
 
@@ -184,6 +188,13 @@ def plot_image(arr):
     return plt
 
 
+def plot_errors(errors):
+    x = [i for i in range(len(errors))]
+
+    plt.plot(x, errors)
+    plt.show()
+
+
 def read_mnist_ready():
     with open('mnist_results/mnist_ready', 'rb') as fp:
         return pickle.load(fp)
@@ -191,6 +202,11 @@ def read_mnist_ready():
 
 def read_mnist_raw():
     with open('mnist_results/mnist_raw', 'rb') as fp:
+        return pickle.load(fp)
+
+
+def read_saved_neuron_network(file: str):
+    with open(f'networks/{file}', 'rb') as fp:
         return pickle.load(fp)
 
 
@@ -210,20 +226,27 @@ images_dataset = read_mnist_ready()
 dataset = images_dataset[:500]
 
 outputs = 10
-network = NeuronNetwork(3, [784, 18, outputs])
 
-network.train(dataset, 0.5, 5, outputs)
+for i in range(3):
+    network = NeuronNetwork(3, [784, 15 + i, outputs])
+    all_errors_sums = network.train(dataset, 0.5, 100, outputs)
 
-dataset_to_predict = images_dataset[500:550]
-errors = 0
-for row in dataset_to_predict:
-    prediction = network.predict(row)
-    if row[-1] != prediction:
-        errors += 1
+    plot_errors(all_errors_sums)
 
-print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
+    # network = read_saved_neuron_network('14-12-2021-17-31-54')
 
-should = input('Should save network?')
-if should == 'y':
+    # dataset_to_predict = images_dataset[500:550]
+    # errors = 0
+    # for row in dataset_to_predict:
+    #     prediction = network.predict(row)
+    #     if row[-1] != prediction:
+    #         errors += 1
+    #
+    # print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
+
+    # should = input('Should save network?')
+    # if should == 'y':
     with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
         pickle.dump(network, fp)
+    with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}-errors-sums', 'wb') as fp:
+        pickle.dump(all_errors_sums, fp)
