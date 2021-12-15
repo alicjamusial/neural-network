@@ -127,8 +127,14 @@ class NeuronNetwork:
                     # neuron.bias -= learning_rate * 1 * neuron.delta
                 neuron.weights[-1] -= learning_rate * neuron.delta
 
+    def _randomize_biases(self):
+        for i, layer in enumerate(self.layers):
+            for neuron in layer.neurons:
+                neuron.bias = random()
+
     def train(self, dataset: List[List[Union[float, int]]], learning_rate: float, repeats: int, number_of_outputs: int) -> List[int]:
         all_errors = []
+        prev_error = 10000
         for iteration in range(repeats):
             sum_error = 0
             for row in dataset:
@@ -140,11 +146,25 @@ class NeuronNetwork:
                 self.back_propagate(expected)
                 self._update_weights(row, learning_rate)
 
+            if len(all_errors) > 0:
+                prev_error = all_errors[-1:][0]
+
             all_errors.append(sum_error)
-            # if iteration == 148:
-            print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
-            # if iteration == 149:
-            #     print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
+
+            # print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
+            # if len(all_errors) > 0 and abs(prev_error - sum_error) < 5:
+            #     print(f'Diff too small, leaving this shit', flush=True)
+            #     self._randomize_biases()
+            #     # break
+
+            # if sum_error < 20:
+            #     learning_rate = 0.4
+            # if sum_error < 10:
+            #     learning_rate = 0.1
+            # if sum_error < 3:
+            #     learning_rate = 0.05
+            if iteration == 99:
+                print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
         return all_errors
 
     def predict(self, row: List[float]):
@@ -223,30 +243,41 @@ def read_saved_neuron_network(file: str):
 seed(datetime.now())
 images_dataset = read_mnist_ready()
 
-dataset = images_dataset[:500]
-
 outputs = 10
+network = NeuronNetwork(3, [784, 16, outputs])
 
-for i in range(6):
-    network = NeuronNetwork(3, [784, 18, outputs])
-    all_errors_sums = network.train(dataset, 0.1 + (0.1 * i), 80, outputs)
+every_error_ever = []
 
-    plot_errors(all_errors_sums)
+for i in range(20):
+    dataset = images_dataset[i*100:(i*100)+100]
+    all_errors_sums = network.train(dataset, 0.8, 100, outputs)
+    every_error_ever.extend(all_errors_sums)
 
-    # network = read_saved_neuron_network('14-12-2021-17-31-54')
+    dataset_to_predict = images_dataset[2500:2550]
+    errors = 0
+    for row in dataset_to_predict:
+        prediction = network.predict(row)
+        if row[-1] != prediction:
+            errors += 1
 
-    # dataset_to_predict = images_dataset[500:550]
-    # errors = 0
-    # for row in dataset_to_predict:
-    #     prediction = network.predict(row)
-    #     if row[-1] != prediction:
-    #         errors += 1
-    #
-    # print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
+    print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
 
-    # should = input('Should save network?')
-    # if should == 'y':
-    with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
-        pickle.dump(network, fp)
-    with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}-errors-sums', 'wb') as fp:
-        pickle.dump(all_errors_sums, fp)
+plot_errors(every_error_ever)
+
+# network = read_saved_neuron_network('14-12-2021-17-31-54')
+
+dataset_to_predict = images_dataset[2500:2550]
+errors = 0
+for row in dataset_to_predict:
+    prediction = network.predict(row)
+    if row[-1] != prediction:
+        errors += 1
+
+print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
+
+# should = input('Should save network?')
+# if should == 'y':
+with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
+    pickle.dump(network, fp)
+with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}-errors-sums', 'wb') as fp:
+    pickle.dump(all_errors_sums, fp)
