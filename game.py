@@ -15,7 +15,10 @@ class Player(arcade.Sprite):
         angle_rad = math.radians(self.angle)
 
         # Rotate
-        self.angle += self.change_angle
+        # self.angle += 90
+
+        if self.angle >= 360:
+            self.angle = self.angle - 360
 
         # Use math to find our change based on our speed and angle
         self.center_x += -self.speed * math.sin(angle_rad)
@@ -24,7 +27,7 @@ class Player(arcade.Sprite):
 
 class Game(arcade.Window):
     def __init__(self):
-        super().__init__(600, 600, title="Sieci neurotyczne")
+        super().__init__(1000, 1000, title="Sieci neurotyczne")
         arcade.set_background_color(arcade.color.LIGHT_GRAY)
 
         self.velocity = 1
@@ -32,6 +35,9 @@ class Game(arcade.Window):
 
         self.scene = None
         self.player = None
+        self.walls = None
+
+        self.text = ''
 
         self.ui_manager = arcade.gui.UIManager(self)
 
@@ -42,51 +48,79 @@ class Game(arcade.Window):
         self.scene.draw()
 
         self.ui_manager.draw()
-        arcade.draw_text(f'Direction: {self.player_sprite.angle}',
+        arcade.draw_text(f'Direction: {self.player[0].angle}',
                          start_x=0, start_y=self.height - 55,
                          width=self.width,
                          font_size=24,
                          align="center",
                          color=arcade.color.BLACK)
 
-    def setup(self):
+        arcade.draw_text(f'{self.text}',
+                         start_x=0, start_y=self.height / 2,
+                         width=self.width,
+                         font_size=44,
+                         align="center",
+                         color=arcade.color.BLACK)
 
+    def setup(self):
         self.scene = arcade.Scene()
 
-        self.player_sprite = Player('imgs/p.png', 1)
+        self.walls = arcade.SpriteList()
+        self.player = []
+        self.player.append(Player('imgs/ship_a.png', 1))
+        self.player.append(Player('imgs/ship_t.png', 1))
+        self.player.append(Player('imgs/ship_r.png', 1))
+        self.player.append(Player('imgs/ship_l.png', 1))
 
         # Adding coordinates for the center of the sprite
-        self.player_sprite.center_x = 300
-        self.player_sprite.center_y = 300
+        self.player[0].center_x = 300
+        self.player[0].center_y = 300
+
+        self.player[1].center_x = 300
+        self.player[1].center_y = 336
+
+        self.player[2].center_x = 344
+        self.player[2].center_y = 298
+
+        self.player[3].center_x = 256
+        self.player[3].center_y = 298
 
         # Adding sprites in scene
-        self.scene.add_sprite('Player', self.player_sprite)
+        for player in self.player:
+            self.scene.add_sprite('Player', player)
+
+        for i in range(20):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 0 + (64 * i)
+            wall.center_y = 500
+            self.walls.append(wall)
+
+        for i in range(5):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 180
+            wall.center_y = 180 + (64 * i)
+            self.walls.append(wall)
+
+        for i in range(5):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 420
+            wall.center_y = 180 + (64 * i)
+            self.walls.append(wall)
+
+        self.scene.add_sprite_list('Walls', False, self.walls)
 
     def on_update(self, delta_time):
+        for player in self.player:
+            player.update()
+            # player.change_angle = 90
+            player.speed = 0.5
 
-        self.player_sprite.update()
+            collision = arcade.check_for_collision_with_list(player, self.walls)
 
-        # self.player_sprite.change_angle = 2
-        self.player_sprite.speed = 1
-
-        # self.player_sprite.center_x += self.velocity * delta_time
-        # self.player_sprite.angle += self.direction * 360
-
-        # # Checking if sprites are colliding or not
-        # colliding = arcade.check_for_collision(
-        #     self.player_sprite, self.player_sprite2)
-        #
-        # # If sprites are colliding then changing direction
-        # if colliding:
-        #     self.vel_x1 *= -1
-        #     self.vel_x2 *= -1
-        #
-        # # Changing the direction if sprites crosses the screen boundary
-        # if self.player_sprite.center_x > 600 or self.player_sprite.center_x < 0:
-        #     self.vel_x1 *= -1
-        #
-        # if self.player_sprite2.center_x > 600 or self.player_sprite2.center_x < 0:
-        #     self.vel_x2 *= -1
+            if collision:
+                for every_player in self.player:
+                    every_player.speed = 0
+                self.text = 'DEAD'
 
 
 game = Game()
