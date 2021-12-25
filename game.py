@@ -37,6 +37,9 @@ class Game(arcade.Window):
         self.player = None
         self.walls = None
 
+        self.playerDots = []
+        self.numberOfDots = 8
+
         self.i = 0
 
         self.text = ''
@@ -46,8 +49,8 @@ class Game(arcade.Window):
         self.camera = None
 
     def center_camera_to_player(self):
-        screen_center_x = self.player[0].center_x - (self.camera.viewport_width / 2)
-        screen_center_y = self.player[0].center_y - (
+        screen_center_x = self.player.center_x - (self.camera.viewport_width / 2)
+        screen_center_y = self.player.center_y - (
                 self.camera.viewport_height / 2
         )
 
@@ -68,27 +71,32 @@ class Game(arcade.Window):
         self.camera.use()
         self.ui_manager.draw()
 
-        arcade.draw_text(f'Direction: {self.player[0].angle}',
+        arcade.draw_text(f'Direction: {self.player.angle}',
                          start_x=0, start_y=self.height - 55,
                          width=self.width,
                          font_size=24,
                          align="center",
                          color=arcade.color.BLACK)
 
-        closest1 = arcade.get_closest_sprite(self.player[1], self.walls)
-        closest2 = arcade.get_closest_sprite(self.player[2], self.walls)
-        closest3 = arcade.get_closest_sprite(self.player[3], self.walls)
+        self.player.draw_hit_box(color=arcade.color.BLACK)
 
-        arcade.draw_text(f'Distances: {closest1[1], closest2[1], closest3[1], }',
-                         start_x=0, start_y=self.height - 85,
-                         width=self.width,
-                         font_size=14,
-                         align="center",
-                         color=arcade.color.BLACK)
+        for i in range(self.numberOfDots):
+            closest = arcade.get_closest_sprite(self.playerDots[i], self.walls)
+            arcade.draw_line(self.playerDots[i].center_x, self.playerDots[i].center_y,
+                             closest[0].center_x, closest[0].center_y, arcade.color.BLACK, 3)
 
-        arcade.draw_line(self.player[1].center_x, self.player[1].center_y, closest1[0].center_x, closest1[0].center_y, arcade.color.BLACK, 3)
-        arcade.draw_line(self.player[2].center_x, self.player[2].center_y, closest2[0].center_x, closest2[0].center_y, arcade.color.BLACK, 3)
-        arcade.draw_line(self.player[3].center_x, self.player[3].center_y, closest3[0].center_x, closest3[0].center_y, arcade.color.BLACK, 3)
+        # closest2 = arcade.get_closest_sprite(self.player[2], self.walls)
+        # closest3 = arcade.get_closest_sprite(self.player[3], self.walls)
+        #
+        # arcade.draw_text(f'Distances: {closest1[1], closest2[1], closest3[1], }',
+        #                  start_x=0, start_y=self.height - 85,
+        #                  width=self.width,
+        #                  font_size=14,
+        #                  align="center",
+        #                  color=arcade.color.BLACK)
+        #
+        # arcade.draw_line(self.player[2].center_x, self.player[2].center_y, closest2[0].center_x, closest2[0].center_y, arcade.color.BLACK, 3)
+        # arcade.draw_line(self.player[3].center_x, self.player[3].center_y, closest3[0].center_x, closest3[0].center_y, arcade.color.BLACK, 3)
 
         arcade.draw_text(f'{self.text}',
                          start_x=0, start_y=self.height / 2,
@@ -103,28 +111,19 @@ class Game(arcade.Window):
         self.scene = arcade.Scene()
 
         self.walls = arcade.SpriteList()
-        self.player = []
-        self.player.append(Player('imgs/ship_a.png', 1))
-        self.player.append(Player('imgs/ship_t.png', 1))
-        self.player.append(Player('imgs/ship_r.png', 1))
-        self.player.append(Player('imgs/ship_l.png', 1))
+        self.player = Player('imgs/ship.png', 1)
 
         # Adding coordinates for the center of the sprite
-        self.player[0].center_x = 300
-        self.player[0].center_y = 300
+        self.player.center_x = 300
+        self.player.center_y = 300
 
-        self.player[1].center_x = 300
-        self.player[1].center_y = 336
+        self.scene.add_sprite('Player', self.player)
 
-        self.player[2].center_x = 344
-        self.player[2].center_y = 298
-
-        self.player[3].center_x = 256
-        self.player[3].center_y = 298
-
-        # Adding sprites in scene
-        for player in self.player:
-            self.scene.add_sprite('Player', player)
+        for i in range(self.numberOfDots):
+            self.playerDots.append(arcade.SpriteCircle(3, color=arcade.color.ALABAMA_CRIMSON))
+            self.playerDots[i].center_x = 0
+            self.playerDots[i].center_y = 0
+            self.scene.add_sprite(f'Dot{i}', self.playerDots[i])
 
         for i in range(20):
             wall = arcade.Sprite("imgs/stone.png", 0.5)
@@ -132,39 +131,45 @@ class Game(arcade.Window):
             wall.center_y = 500
             self.walls.append(wall)
 
-        # for i in range(5):
-        #     wall = arcade.Sprite("imgs/stone.png", 0.5)
-        #     wall.center_x = 180
-        #     wall.center_y = 180 + (64 * i)
-        #     self.walls.append(wall)
-        #
-        # for i in range(5):
-        #     wall = arcade.Sprite("imgs/stone.png", 0.5)
-        #     wall.center_x = 420
-        #     wall.center_y = 180 + (64 * i)
-        #     self.walls.append(wall)
+        for i in range(5):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 180
+            wall.center_y = 180 + (64 * i)
+            self.walls.append(wall)
+
+        for i in range(5):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 420
+            wall.center_y = 180 + (64 * i)
+            self.walls.append(wall)
 
         self.scene.add_sprite_list('Walls', False, self.walls)
 
     def on_update(self, delta_time):
 
-        for player in self.player:
-            player.update()
-            if self.i == 0:
-                player.change_angle = 270
-            else:
-                player.change_angle = 0
+        points = self.player.get_adjusted_hit_box()
 
-            player.speed = 0.5
+        for i in range(self.numberOfDots):
+            self.playerDots[i].center_x = points[i][0]
+            self.playerDots[i].center_y = points[i][1]
 
-            collision = arcade.check_for_collision_with_list(player, self.walls)
+        self.player.update()
+        # if self.i == 0:
+        #     self.player.change_angle = 270
+        # else:
+        self.player.change_angle = 0
+        if self.i % 200:
+            self.player.change_angle = -2
 
-            if collision:
-                for every_player in self.player:
-                    every_player.speed = 0
-                self.text = 'DEAD'
+        self.player.speed = 0.5
 
-        self.i = 1
+        collision = arcade.check_for_collision_with_list(self.player, self.walls)
+
+        if collision:
+            self.player.speed = 0
+            self.text = 'DEAD'
+
+        self.i = self.i + 1
         self.center_camera_to_player()
 
 
