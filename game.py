@@ -62,6 +62,13 @@ class Game(arcade.Window):
                          align="center",
                          color=arcade.color.BLACK)
 
+        closest1 = arcade.get_closest_sprite(self.player[1], self.walls)[0]
+        closest2 = arcade.get_closest_sprite(self.player[2], self.walls)[0]
+        closest3 = arcade.get_closest_sprite(self.player[3], self.walls)[0]
+        arcade.draw_line(self.player[1].center_x, self.player[1].center_y, closest1.center_x, closest1.center_y, arcade.color.BLACK, 3)
+        arcade.draw_line(self.player[2].center_x, self.player[2].center_y, closest2.center_x, closest2.center_y, arcade.color.BLACK, 3)
+        arcade.draw_line(self.player[3].center_x, self.player[3].center_y, closest3.center_x, closest3.center_y, arcade.color.BLACK, 3)
+
     def setup(self):
         self.scene = arcade.Scene()
 
@@ -110,6 +117,7 @@ class Game(arcade.Window):
         self.scene.add_sprite_list('Walls', False, self.walls)
 
     def on_update(self, delta_time):
+
         for player in self.player:
             player.update()
             # player.change_angle = 90
