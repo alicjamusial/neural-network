@@ -85,19 +85,6 @@ class Game(arcade.Window):
             arcade.draw_line(self.playerDots[i].center_x, self.playerDots[i].center_y,
                              closest[0].center_x, closest[0].center_y, arcade.color.BLACK, 3)
 
-        # closest2 = arcade.get_closest_sprite(self.player[2], self.walls)
-        # closest3 = arcade.get_closest_sprite(self.player[3], self.walls)
-        #
-        # arcade.draw_text(f'Distances: {closest1[1], closest2[1], closest3[1], }',
-        #                  start_x=0, start_y=self.height - 85,
-        #                  width=self.width,
-        #                  font_size=14,
-        #                  align="center",
-        #                  color=arcade.color.BLACK)
-        #
-        # arcade.draw_line(self.player[2].center_x, self.player[2].center_y, closest2[0].center_x, closest2[0].center_y, arcade.color.BLACK, 3)
-        # arcade.draw_line(self.player[3].center_x, self.player[3].center_y, closest3[0].center_x, closest3[0].center_y, arcade.color.BLACK, 3)
-
         arcade.draw_text(f'{self.text}',
                          start_x=0, start_y=self.height / 2,
                          width=self.width,
@@ -114,8 +101,8 @@ class Game(arcade.Window):
         self.player = Player('imgs/ship.png', 1)
 
         # Adding coordinates for the center of the sprite
-        self.player.center_x = 300
-        self.player.center_y = 300
+        self.player.center_x = 256
+        self.player.center_y = 256
 
         self.scene.add_sprite('Player', self.player)
 
@@ -125,22 +112,46 @@ class Game(arcade.Window):
             self.playerDots[i].center_y = 0
             self.scene.add_sprite(f'Dot{i}', self.playerDots[i])
 
-        for i in range(20):
+        for i in range(40):
             wall = arcade.Sprite("imgs/stone.png", 0.5)
             wall.center_x = 0 + (64 * i)
-            wall.center_y = 500
+            wall.center_y = 64
             self.walls.append(wall)
 
-        for i in range(5):
+        for i in range(40):
             wall = arcade.Sprite("imgs/stone.png", 0.5)
-            wall.center_x = 180
-            wall.center_y = 180 + (64 * i)
+            wall.center_x = 0 + (64 * i)
+            wall.center_y = 64 * 14
             self.walls.append(wall)
 
-        for i in range(5):
+        for i in range(14):
             wall = arcade.Sprite("imgs/stone.png", 0.5)
-            wall.center_x = 420
-            wall.center_y = 180 + (64 * i)
+            wall.center_x = 32
+            wall.center_y = 64 + (64 * i)
+            self.walls.append(wall)
+
+        for i in range(10):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 64 * 6
+            wall.center_y = 64 + (64 * i)
+            self.walls.append(wall)
+
+        for i in range(8):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 64 * 12
+            wall.center_y = 64 * 6 + (64 * i)
+            self.walls.append(wall)
+
+        for i in range(8):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 64 * 16
+            wall.center_y = 64 * 6 + (64 * i)
+            self.walls.append(wall)
+
+        for i in range(10):
+            wall = arcade.Sprite("imgs/stone.png", 0.5)
+            wall.center_x = 64 * 22
+            wall.center_y = 64 + (64 * i)
             self.walls.append(wall)
 
         self.scene.add_sprite_list('Walls', False, self.walls)
@@ -167,6 +178,7 @@ class Game(arcade.Window):
 
         if collision:
             self.player.speed = 0
+            self.player.change_angle = 0
             self.text = 'DEAD'
 
         self.i = self.i + 1
