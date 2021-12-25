@@ -239,45 +239,45 @@ def read_saved_neuron_network(file: str):
 # gen_image(new_images[4098]).show()
 # print(all_labels[4098])
 
-
-seed(datetime.now())
-images_dataset = read_mnist_ready()
-
-outputs = 10
-network = NeuronNetwork(3, [784, 16, outputs])
-
-every_error_ever = []
-
-for i in range(20):
-    dataset = images_dataset[i*100:(i*100)+100]
-    all_errors_sums = network.train(dataset, 0.8, 100, outputs)
-    every_error_ever.extend(all_errors_sums)
-
-    dataset_to_predict = images_dataset[2500:2550]
-    errors = 0
-    for row in dataset_to_predict:
-        prediction = network.predict(row)
-        if row[-1] != prediction:
-            errors += 1
-
-    print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
-
-plot_errors(every_error_ever)
-
-# network = read_saved_neuron_network('14-12-2021-17-31-54')
-
-dataset_to_predict = images_dataset[2500:2550]
-errors = 0
-for row in dataset_to_predict:
-    prediction = network.predict(row)
-    if row[-1] != prediction:
-        errors += 1
-
-print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
-
-# should = input('Should save network?')
-# if should == 'y':
-with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
-    pickle.dump(network, fp)
-with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}-errors-sums', 'wb') as fp:
-    pickle.dump(all_errors_sums, fp)
+#
+# seed(datetime.now())
+# images_dataset = read_mnist_ready()
+#
+# outputs = 10
+# network = NeuronNetwork(3, [784, 16, outputs])
+#
+# every_error_ever = []
+#
+# for i in range(20):
+#     dataset = images_dataset[i*100:(i*100)+100]
+#     all_errors_sums = network.train(dataset, 0.8, 100, outputs)
+#     every_error_ever.extend(all_errors_sums)
+#
+#     dataset_to_predict = images_dataset[2500:2550]
+#     errors = 0
+#     for row in dataset_to_predict:
+#         prediction = network.predict(row)
+#         if row[-1] != prediction:
+#             errors += 1
+#
+#     print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
+#
+# plot_errors(every_error_ever)
+#
+# # network = read_saved_neuron_network('14-12-2021-17-31-54')
+#
+# dataset_to_predict = images_dataset[2500:2550]
+# errors = 0
+# for row in dataset_to_predict:
+#     prediction = network.predict(row)
+#     if row[-1] != prediction:
+#         errors += 1
+#
+# print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
+#
+# # should = input('Should save network?')
+# # if should == 'y':
+# with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
+#     pickle.dump(network, fp)
+# with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}-errors-sums', 'wb') as fp:
+#     pickle.dump(all_errors_sums, fp)
