@@ -1,6 +1,8 @@
 from datetime import datetime
-from random import random, seed
+from random import random, seed, randrange
 from typing import List, Optional
+from sklearn import preprocessing
+import numpy as np
 
 import arcade
 import arcade.gui
@@ -25,7 +27,7 @@ class Player(arcade.Sprite):
         for i in range(self.numberOfDots):
             self.closest.append(None)
 
-        self.network = NeuronNetwork(3, [self.numberOfDots, 12, 2])
+        self.network = NeuronNetwork(3, [self.numberOfDots, 16, 2])
 
     def update(self, walls):
         points = self.get_adjusted_hit_box()
@@ -33,10 +35,12 @@ class Player(arcade.Sprite):
         for i in range(self.numberOfDots):
             self.closest[i] = arcade.get_closest_sprite(self.playerDots[i], walls)
 
-        self.network.forward_propagate([i[1] for i in self.closest])
-        self.speed = self.network.layers[1].neurons[0].activation * 5
-        self.change_angle = self.network.layers[1].neurons[1].activation
-        print(self.speed, self.change_angle)
+        distances = [i[1] for i in self.closest]
+        # normalize the data attributes
+        normalized = preprocessing.normalize(np.array(distances).reshape(1,-1))
+        self.network.forward_propagate(normalized[0])
+        self.speed = (self.network.layers[1].neurons[0].activation + 0.5) * 8
+        self.change_angle = self.network.layers[1].neurons[1].activation - 0.5
 
         for i in range(self.numberOfDots):
             self.playerDots[i].center_x = points[i][0]
@@ -82,11 +86,13 @@ class Game(arcade.Window):
         self.direction = 1
 
         self.scene = None
-        self.numberOfPlayers = 10
+        self.numberOfPlayers = 12
         self.players: List[Player] = []
         self.walls = None
 
-        self.i = 0
+        self.dead_players = 0
+
+        self.iteration = 0
 
         self.text = ''
 
@@ -94,10 +100,12 @@ class Game(arcade.Window):
 
         self.camera = None
 
+        self.chosen = []
+
     def center_camera_to_player(self):
         most_right_player = self.players[0]
         for i in range(self.numberOfPlayers):
-            if self.players[i].center_x > most_right_player.center_x:
+            if self.players[i].center_x > most_right_player.center_x and not self.players[i].dead:
                 most_right_player = self.players[i]
 
         screen_center_x = most_right_player.center_x - (self.camera.viewport_width / 2)
@@ -122,12 +130,12 @@ class Game(arcade.Window):
         self.camera.use()
         self.ui_manager.draw()
 
-        # arcade.draw_text(f'Direction: {self.player.angle}',
-        #                  start_x=0, start_y=self.camera.viewport_height - 55,
-        #                  width=self.camera.viewport_width,
-        #                  font_size=24,
-        #                  align="center",
-        #                  color=arcade.color.BLACK)
+        arcade.draw_text(f'Iteration: {self.iteration}',
+                         start_x=0, start_y=self.camera.viewport_height - 55,
+                         width=self.camera.viewport_width,
+                         font_size=24,
+                         align="center",
+                         color=arcade.color.BLACK)
 
         for i in range(self.numberOfPlayers):
             self.players[i].draw_all_points()
@@ -195,6 +203,37 @@ class Game(arcade.Window):
 
         self.scene.add_sprite_list('Walls', False, self.walls)
 
+        self.end = arcade.SpriteCircle(20, color=arcade.color.ARSENIC)
+        self.end.center_x = 2000
+        self.end.center_y = 500
+        self.scene.add_sprite('End', self.end)
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if self.dead_players == self.numberOfPlayers:
+            for i in range(self.numberOfPlayers):
+                if self.players[i].collides_with_point((float(x), float(y))):
+                    self.players[i].alpha = 255
+                    self.chosen.append(self.players[i])
+
+        if len(self.chosen) >= 2:
+            self.create_children(self.chosen[0:2])
+            self.chosen = []
+
+    def create_children(self, chosen):
+        neurons0 = chosen[0].network.layers[0].neurons
+        neurons1 = chosen[1].network.layers[0].neurons
+        for i in range(self.numberOfPlayers):
+            line = randrange(1, 16)
+            self.players[i].network.layers[0].neurons[0:line] = neurons0[0:line]
+            self.players[i].network.layers[0].neurons[line:16] = neurons1[line:16]
+
+            self.players[i].center_x = 256
+            self.players[i].center_y = 256
+            self.players[i].dead = False
+            self.players[i].alpha = 255
+        self.dead_players = 0
+        self.iteration += 1
+
     def on_update(self, delta_time):
         for i in range(self.numberOfPlayers):
             if not self.players[i].dead:
@@ -206,10 +245,9 @@ class Game(arcade.Window):
                     self.players[i].change_angle = 0
                     self.players[i].alpha = 20
                     self.players[i].dead = True
-                    self.text = 'DEAD'
+                    self.dead_players += 1
 
-        self.i = self.i + 1
-        self.center_camera_to_player()
+        # self.center_camera_to_player()
 
 
 seed(datetime.now())
