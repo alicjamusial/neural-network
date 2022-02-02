@@ -127,14 +127,13 @@ class NeuronNetwork:
                     # neuron.bias -= learning_rate * 1 * neuron.delta
                 neuron.weights[-1] -= learning_rate * neuron.delta
 
-    def _randomize_biases(self):
-        for i, layer in enumerate(self.layers):
-            for neuron in layer.neurons:
-                neuron.bias = random()
+    # def _randomize_biases(self):
+    #     for i, layer in enumerate(self.layers):
+    #         for neuron in layer.neurons:
+    #             neuron.bias = random()
 
     def train(self, dataset: List[List[Union[float, int]]], learning_rate: float, repeats: int, number_of_outputs: int) -> List[int]:
         all_errors = []
-        prev_error = 10000
         for iteration in range(repeats):
             sum_error = 0
             for row in dataset:
@@ -146,23 +145,9 @@ class NeuronNetwork:
                 self.back_propagate(expected)
                 self._update_weights(row, learning_rate)
 
-            if len(all_errors) > 0:
-                prev_error = all_errors[-1:][0]
-
             all_errors.append(sum_error)
 
             # print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
-            # if len(all_errors) > 0 and abs(prev_error - sum_error) < 5:
-            #     print(f'Diff too small, leaving this shit', flush=True)
-            #     self._randomize_biases()
-            #     # break
-
-            # if sum_error < 20:
-            #     learning_rate = 0.4
-            # if sum_error < 10:
-            #     learning_rate = 0.1
-            # if sum_error < 3:
-            #     learning_rate = 0.05
             if iteration == 99:
                 print(f'Iteration: {iteration}, learning rate: {learning_rate}, error: {sum_error}', flush=True)
         return all_errors
@@ -172,34 +157,6 @@ class NeuronNetwork:
         # print(f'Probabilities: {output}')
         max_probability = max(output)
         return output.index(max_probability)
-
-#
-# def main():
-#     seed(datetime.now())
-#
-#     xor = [[0, 0, 0],
-#            [0, 1, 1],
-#            [1, 0, 1],
-#            [1, 1, 0]]
-#
-#     outputs = 2
-#     network = NeuronNetwork(3, [2, 4, outputs])  # including input layer which is not exactly a layer
-#     print(network)
-#
-#     errors = network.train(xor, 0.1, 8000, outputs)
-#     print(network)
-#
-#     dataset_to_predict = [[0, 0, 0],
-#                           [0, 1, 1],
-#                           [1, 0, 1],
-#                           [1, 1, 0]]
-#
-#     for row in dataset_to_predict:
-#         prediction = network.predict(row)
-#         print(f'Expected={row[-1]}, Got={prediction}')
-#
-
-# main()
 
 
 def plot_image(arr):
@@ -228,17 +185,6 @@ def read_mnist_raw():
 def read_saved_neuron_network(file: str):
     with open(f'networks/{file}', 'rb') as fp:
         return pickle.load(fp)
-
-
-# for i, img in enumaerate(new_images[120:130]):
-#     gen_image(img).show()
-#     print(all_labels[120 + i])
-# new_images = read_mnist_raw()
-# gen_image(new_images[126]).show()
-# print(all_labels[126])
-# gen_image(new_images[4098]).show()
-# print(all_labels[4098])
-
 
 seed(datetime.now())
 images_dataset = read_mnist_ready()
@@ -277,7 +223,7 @@ print(f'Errors ratio: {errors}/{len(dataset_to_predict)}')
 
 # should = input('Should save network?')
 # if should == 'y':
-with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
-    pickle.dump(network, fp)
-with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}-errors-sums', 'wb') as fp:
-    pickle.dump(all_errors_sums, fp)
+# with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}', 'wb') as fp:
+#     pickle.dump(network, fp)
+# with open(f'networks/{datetime.now().strftime("%d-%m-%Y-%H-%M-%S")}-errors-sums', 'wb') as fp:
+#     pickle.dump(all_errors_sums, fp)
