@@ -1,0 +1,41 @@
+C:\python38\python.exe C:/repos/neural-network/script.py
+Iteration: 99, learning rate: 0.8, error: 2.5127494916882425
+Errors ratio: 14/50
+Iteration: 99, learning rate: 0.8, error: 0.22129809243829573
+Errors ratio: 10/50
+Iteration: 99, learning rate: 0.8, error: 1.1470422045346318
+Errors ratio: 12/50
+Iteration: 99, learning rate: 0.8, error: 0.11578426701916705
+Errors ratio: 8/50
+Iteration: 99, learning rate: 0.8, error: 3.0997554636517033
+Errors ratio: 4/50
+Iteration: 99, learning rate: 0.8, error: 0.12074186241602101
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 3.1066855895266783
+Errors ratio: 5/50
+Iteration: 99, learning rate: 0.8, error: 1.1364126649681494
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 4.080924037321658
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 2.14145559279635
+Errors ratio: 10/50
+Iteration: 99, learning rate: 0.8, error: 5.878962594003728
+Errors ratio: 10/50
+Iteration: 99, learning rate: 0.8, error: 3.1830250264778943
+Errors ratio: 8/50
+Iteration: 99, learning rate: 0.8, error: 6.118925290051378
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 2.1174163178047363
+Errors ratio: 7/50
+Iteration: 99, learning rate: 0.8, error: 2.0395484398740837
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 4.074241907776055
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 4.181090476075994
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 2.0634844489698843
+Errors ratio: 9/50
+Iteration: 99, learning rate: 0.8, error: 1.0408481793755213
+Errors ratio: 8/50
+Iteration: 99, learning rate: 0.8, error: 0.11575477431547286
+Errors ratio: 6/50
